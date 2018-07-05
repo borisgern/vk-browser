@@ -18,7 +18,9 @@ io.on('connection', (socket) => {
   console.log('user connected to server');
 
   socket.on('search', (q) => {
-    search(q).then(res => {console.log(res);}).catch(console.log);
+    search(q).then(res => {
+      socket.emit('searchResult', res);
+    }).catch(console.log);
   });
 });
 
