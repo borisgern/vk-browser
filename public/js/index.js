@@ -7,7 +7,7 @@ socket.on('connect', function () {
 $('#search-form').submit(function (e) {
   console.log('click');
   e.preventDefault();
-  $('#search-result').append('<li>text</li>');
+  var data = $('[name=search-bar]').val();
+  socket.emit('search', data);
+  //$('#search-result').append('<li>text</li>');
 });
-var params = 2;
-socket.emit('join', params);

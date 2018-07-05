@@ -3,6 +3,8 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 
+const {search} = require('./utils/vk-calls');
+
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
@@ -15,7 +17,9 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
   console.log('user connected to server');
 
-  socket.on('join', params => console.log(params));
+  socket.on('search', (q) => {
+    search(q).then(res => {console.log(res);}).catch(console.log);
+  });
 });
 
 
