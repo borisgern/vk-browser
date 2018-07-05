@@ -21,6 +21,7 @@
     <ol id="search-result"></ol>
   </div>
 
+
   <script id="search-result-template" type="text/template">
       <li>
         <div>
@@ -33,6 +34,14 @@
         </div>
         <div>
           <p>О себе: {{about}}</p>
+        </div>
+        <div>
+          <h4>Поседние 5 постов:</h4>
+          <p>
+            {{#posts}}
+            {{.}}<br><br>
+            {{/posts}}
+          </p>
         </div>
       </li>
     </script>
