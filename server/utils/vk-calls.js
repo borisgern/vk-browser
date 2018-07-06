@@ -14,7 +14,7 @@ exports.search = async (q) => {
       access_token: access_token,
       q,
       count: 10,
-      fields: 'photo_200_orig, about'
+      fields: 'photo_200_orig, sex, bdate, city, country'
   });
 
   for(var i = 0; i < users.items.length; i++) {
