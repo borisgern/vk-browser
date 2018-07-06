@@ -4,6 +4,7 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 const {search} = require('./utils/vk-calls');
+const {formatUsers} = require('./utils/users');
 
 var app = express();
 var server = http.createServer(app);
@@ -19,7 +20,7 @@ io.on('connection', (socket) => {
 
   socket.on('search', (q) => {
     search(q).then(res => {
-      socket.emit('searchResult', res);
+      socket.emit('searchResult', formatUsers(res));
     }).catch(console.log);
   });
 });

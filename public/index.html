@@ -41,14 +41,29 @@
         </div>
         <div>
           <h4>Поседние 5 постов:</h4>
-          <p>
-            {{#posts}}
-            {{.}}<br><br>
-            {{/posts}}
-          </p>
+          <ol id="post-{{userID}}"></ol>
         </div>
       </li>
     </script>
+
+    <script id="post-template" type="text/template">
+        <li>
+          <div>
+            <span>{{date}}</span>
+          </div>
+          <div>
+            <img src="{{photo}}" alt="">
+          </div>
+          <div>
+            <p>{{text}}</p>
+          </div>
+          <div>
+            <p>
+              <a href="{{link}}" target="_blank">Ссылка на пост</a>
+            </p>
+          </div>
+        </li>
+      </script>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/libs/jquery-3.3.1.min.js"></script>

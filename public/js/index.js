@@ -6,52 +6,38 @@ socket.on('connect', function () {
 
 socket.on('searchResult', function (res) {
   console.log(res);
-  var template = $('#search-result-template').html();
-  for(var i = 0; i < res.items.length; i++) {
 
-    var postsText = [];
-    res.items[i].posts.forEach(function (post) {
-      if(!post.text) {
-        post.text = 'У этого поста нет текста'
-      }
-      postsText.push(post.text);
-    });
-
-    if(!res.items[i].about) {
-      res.items[i].about = 'Нет информации';
-    }
-    if(!res.items[i].city) {
-      res.items[i].city = {};
-      res.items[i].city.title = 'Нет информации';
-    }
-    if(!res.items[i].country) {
-      res.items[i].country = {};
-      res.items[i].country.title = 'Нет информации';
-    }
-    switch(res.items[i].sex) {
-    case 1:
-        res.items[i].sex = 'жен';
-        break;
-    case 2:
-        res.items[i].sex = 'муж';
-        break;
-    default:
-        res.items[i].sex = 'не определился';
-    }
+  res.forEach(function (user) {
+    var template = $('#search-result-template').html();
     var html = Mustache.render(template, {
-      photo: res.items[i].photo_200_orig,
-      first_name: res.items[i].first_name,
-      last_name: res.items[i].last_name,
-      sex: res.items[i].sex,
-      link: `https://vk.com/id${res.items[i].id}`,
-      posts: postsText,
-      bdate: res.items[i].bdate,
-      country: res.items[i].country.title,
-      city: res.items[i].city.title
+      photo: user.photo,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      sex: user.sex,
+      link: user.link,
+      userID: user.userID,
+      bdate: user.bdate,
+      country: user.country,
+      city: user.city
     });
     //console.log(html);
     $('#search-result').append(html);
-  }
+
+    template = $('#post-template').html();
+    user.posts.forEach(function (post) {
+      html = Mustache.render(template, {
+        photo: post.photo,
+        date: post.date,
+        text: post.text,
+        link: post.link,
+      });
+      //console.log(html);
+      $(`#post-${user.userID}`).append(html);
+    });
+
+  });
+
+
 });
 
 $('#search-form').submit(function (e) {
