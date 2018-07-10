@@ -49,8 +49,8 @@ $('#search-form').submit(function (e) {
   e.preventDefault();
   var data = $('[name=search-bar]').val();
 
-  socket.emit('checkToken', function (err) {
-    if(err) {
+  socket.emit('checkToken', function (token) {
+    if(!token) {
       var domain = window.location.origin;
       window.location.href = `https://oauth.vk.com/authorize?client_id=6625040&display=page&response_type=token&v=5.52&redirect_uri=${domain}`;
     } else {

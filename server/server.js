@@ -39,10 +39,12 @@ io.on('connection', (socket) => {
   // });
 
   socket.on('checkToken', (callback) => {
-    if(!getAccessToken()) {
-      callback('No access token');
-    }
-    callback()
+    var token = getAccessToken();
+    if(token) {
+      callback(token);
+    } else {
+      callback();
+    }    
   });
 
   socket.on('token', (token) => {

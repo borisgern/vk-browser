@@ -12,12 +12,7 @@ exports.setAccessToken = (token) => {
   access_token = token;
 };
 
-exports.getAccessToken = () => {
-  if(access_token) {
-    return true;
-  }
-  return false;
-};
+exports.getAccessToken = () => access_token;
 
 exports.search = async (q) => {
   var users = await vk.api.call('users.search', {
