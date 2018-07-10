@@ -3,8 +3,9 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 const bodyParser = require('body-parser')
+//const VKontakteStrategy = require('passport-vkontakte').Strategy;
 
-const {search} = require('./utils/vk-calls');
+const {search, setAccessToken, getAccessToken} = require('./utils/vk-calls');
 const {formatUsers} = require('./utils/users');
 const {mongoose} = require('./db/mongoose');
 const {Query} = require('./models/search-query.js');
@@ -20,6 +21,8 @@ const port = process.env.PORT || 3000;
 
 app.use(express.static(publicPath));
 
+app.use(bodyParser.json());
+
 io.on('connection', (socket) => {
   console.log('user connected to server');
 
@@ -34,6 +37,17 @@ io.on('connection', (socket) => {
   //     console.log('unable to save');
   //   });
   // });
+
+  socket.on('checkToken', (callback) => {
+    if(!getAccessToken()) {
+      callback('No access token');
+    }
+    callback()
+  });
+
+  socket.on('token', (token) => {
+    setAccessToken(token);
+  });
 
   socket.on('search', (q) => {
     search(q).then(res => {

@@ -1,13 +1,23 @@
 const {VK} = require('vk-io');
 const vk = new VK();
+const { auth } = vk;
+
 
 const token = 'b2fbf62cb2fbf62cb2fbf62cddb29ee13cbb2fbb2fbf62ce9c5f188211044f458657591';
-const access_token = 'c8ed9572e8285e33873e65e073522936e470d0f2d6e34a1eaa3dcf00a3504b6eb3228cb53d8f3a1eabfb9';
+var access_token;
 
 vk.setToken(token);
 
-//https://oauth.vk.com/authorize?client_id=6625040&display=page&response_type=token&v=5.52
-//63c14f40b96926f253d9cb084a625fcf7ad6f4978b831a3fcca8adf54f16878fd9b81254b9312c448e1b5
+exports.setAccessToken = (token) => {
+  access_token = token;
+};
+
+exports.getAccessToken = () => {
+  if(access_token) {
+    return true;
+  }
+  return false;
+};
 
 exports.search = async (q) => {
   var users = await vk.api.call('users.search', {

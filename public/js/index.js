@@ -2,6 +2,11 @@ var socket = io();
 
 socket.on('connect', function () {
   console.log('connected to server');
+
+  if(window.location.hash) {
+    socket.emit('token', $.deparam(window.location.hash.substr(1)).access_token)
+  }
+
 });
 
 socket.on('searchResult', function (res) {
@@ -20,7 +25,7 @@ socket.on('searchResult', function (res) {
       country: user.country,
       city: user.city
     });
-    //console.log(html);
+
     $('#search-result').append(html);
 
     template = $('#post-template').html();
@@ -31,7 +36,7 @@ socket.on('searchResult', function (res) {
         text: post.text,
         link: post.link,
       });
-      //console.log(html);
+
       $(`#post-${user.userID}`).append(html);
     });
 
@@ -43,7 +48,16 @@ socket.on('searchResult', function (res) {
 $('#search-form').submit(function (e) {
   e.preventDefault();
   var data = $('[name=search-bar]').val();
-  socket.emit('search', data);
+
+  socket.emit('checkToken', function (err) {
+    if(err) {
+      var domain = window.location.origin;
+      window.location.href = `https://oauth.vk.com/authorize?client_id=6625040&display=page&response_type=token&v=5.52&redirect_uri=${domain}`;
+    } else {
+      socket.emit('search', data);
+    }
+  });
+
 });
 
 $('#authorization-form').submit(function (e) {
