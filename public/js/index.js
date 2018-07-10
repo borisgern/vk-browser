@@ -45,3 +45,10 @@ $('#search-form').submit(function (e) {
   var data = $('[name=search-bar]').val();
   socket.emit('search', data);
 });
+
+$('#authorization-form').submit(function (e) {
+  e.preventDefault();
+  var log = $('[name=login]').val();
+  var pas = $('[name=password]').val();
+  socket.emit('auth', log, pas);
+});
