@@ -11,7 +11,7 @@ socket.on('connect', function () {
 
 socket.on('searchResult', function (res) {
   console.log(res);
-
+  $('#search-status').text('');
   res.forEach(function (user) {
     var template = $('#search-result-template').html();
     var html = Mustache.render(template, {
@@ -45,6 +45,17 @@ socket.on('searchResult', function (res) {
 
 });
 
+socket.on('updateSearchHistory', function (history) {
+  $('#search-history').empty();
+  history.forEach(function (query) {
+    var template = $('#search-history-template').html();
+    var html = Mustache.render(template, {
+      text: query.query
+    });
+    $(`#search-history`).append(html);
+  });
+});
+
 $('#search-form').submit(function (e) {
   e.preventDefault();
   var data = $('[name=search-bar]').val();
@@ -54,6 +65,8 @@ $('#search-form').submit(function (e) {
       var domain = window.location.origin;
       window.location.href = `https://oauth.vk.com/authorize?client_id=6625040&display=page&response_type=token&scope=offline&v=5.52&redirect_uri=${domain}`;
     } else {
+      $('#search-result').empty();
+      $('#search-status').text('Идет поиск...');
       socket.emit('search', data);
     }
   });

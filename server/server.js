@@ -2,7 +2,8 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const hbs = require('hbs');
 //const VKontakteStrategy = require('passport-vkontakte').Strategy;
 
 const {search, setAccessToken, getAccessToken} = require('./utils/vk-calls');
@@ -19,9 +20,17 @@ var io = socketIO(server);
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
 
+app.set('view engine', 'hbs');
+
+app.get('/user', (req, res) => {
+  res.render('user.hbs');
+});
+
 app.use(express.static(publicPath));
 
 app.use(bodyParser.json());
+
+
 
 io.on('connection', (socket) => {
   console.log('user connected to server');
@@ -44,7 +53,7 @@ io.on('connection', (socket) => {
       callback(token);
     } else {
       callback();
-    }    
+    }
   });
 
   socket.on('token', (token) => {
@@ -52,18 +61,29 @@ io.on('connection', (socket) => {
   });
 
   socket.on('search', (q) => {
+    var query = new Query({
+      query: q,
+      _requester: ObjectId("5b3f883179b68f215c17f155")
+    });
+    query.save().then((res) => {
+      console.log('saved ', res);
+      Query.find({
+        _requester: ObjectId("5b3f883179b68f215c17f155")
+      }).then((query) => {
+          socket.emit('updateSearchHistory', query);
+      })
+    }, (e) => {
+      console.log('unable to save');
+    });
+
+
+
+
+
     search(q).then(res => {
+
       socket.emit('searchResult', formatUsers(res));
 
-      // var query = new Query({
-      //   query: q,
-      //   _requester: ObjectId("5b3f883179b68f215c17f155")
-      // });
-      // query.save().then((res) => {
-      //   console.log('saved ', res);
-      // }, (e) => {
-      //   console.log('unable to save');
-      // });
     }).catch(console.log);
 
   });
