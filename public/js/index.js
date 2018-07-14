@@ -7,6 +7,10 @@ socket.on('connect', function () {
     socket.emit('token', $.deparam(window.location.hash.substr(1)).access_token)
   }
 
+  var template = $('#login-template').html();
+  var html = Mustache.render(template);
+  $('#authorization-form').append(html);
+
 });
 
 socket.on('searchResult', function (res) {
@@ -45,14 +49,23 @@ socket.on('searchResult', function (res) {
 
 });
 
-socket.on('updateSearchHistory', function (history) {
-  $('#search-history').empty();
-  history.forEach(function (query) {
+socket.on('updateHistory', function (history) {
+  //$('#search-history').empty();
+  history.queries.forEach(function (query) {
     var template = $('#search-history-template').html();
     var html = Mustache.render(template, {
       text: query.query
     });
-    $(`#search-history`).append(html);
+    $('#search-history').append(html);
+  });
+
+  history.links.forEach(function (link) {
+    var template = $('#click-history-template').html();
+    var html = Mustache.render(template, {
+      text: link.text,
+      link: link.link
+    });
+    $(`#click-history`).append(html);
   });
 });
 
@@ -89,9 +102,35 @@ $('body').on('click', '#vk-link', function(e) {
   });
 });
 
-$('#authorization-form').submit(function(e) {
-  e.preventDefault();
-  var log = $('[name=login]').val();
-  var pas = $('[name=password]').val();
-  socket.emit('auth', log, pas);
+$('body').on('click', '#login-button', function(e) {
+    e.preventDefault();
+    var log = $('[name=login]').val();
+    var pas = $('[name=password]').val();
+    socket.emit('auth', log, pas, function(authResult) {
+      console.log(authResult);
+      if(!authResult) {
+        $('#authorization-form').empty();
+        var template = $('#logout-template').html();
+        var html = Mustache.render(template, {
+          username: log
+        });
+        $('#authorization-form').append(html);
+
+        template = $('#history-template').html();
+        html = Mustache.render(template);
+        $('#history').append(html);
+
+        //
+      }
+
+    });
+});
+
+$('body').on('click', '#logout-button', function(e) {
+    e.preventDefault();
+    $('#authorization-form').empty();
+    $('#history').empty();
+    var template = $('#login-template').html();
+    var html = Mustache.render(template);
+    $('#authorization-form').append(html);
 });

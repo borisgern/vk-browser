@@ -19,31 +19,27 @@
   </div>
   <br>
   <div>
-    <form id="authorization-form">
-      <div>
-        <label>Авторизация</label>
-        <div>
-          <input type="text" name="login" placeholder="логин"/>
-          <input type="text" name="password" placeholder="пароль"/>
-          <button id="login-button">Войти</buttton>
-        </div>
-      </div>
-    </form>
+    <form id="authorization-form"></form>
   </div>
-  <div>
-    <p><b>10 последних поисковых запросов:</b></p>
-    <ol id="search-history"></ol>
-  </div>
-  <div>
-    <p><b>10 последних кликов по ссылке:</b></p>
-    <ol id="click-history"></ol>
-  </div>
-  <div>
-    <p><b>Результат поиска:</b></p>
-    <label id="search-status"></label>
-    <ol id="search-result"></ol>
+  <div id="result">
+    <div id="history"></div>
+    <div>
+      <p><b>Результат поиска:</b></p>
+      <label id="search-status"></label>
+      <ol id="search-result"></ol>
+    </div>
   </div>
 
+  <script id="history-template" type="text/template">
+    <div>
+      <p><b>10 последних поисковых запросов:</b></p>
+      <ol id="search-history"></ol>
+    </div>
+    <div>
+      <p><b>10 последних кликов по ссылке:</b></p>
+      <ol id="click-history"></ol>
+    </div>
+  </script>
 
   <script id="search-result-template" type="text/template">
       <li>
@@ -86,6 +82,24 @@
             </p>
           </div>
         </li>
+      </script>
+
+      <script id="logout-template" type="text/template">
+        <div>
+          <label>Вы вошли как {{username}}</label>
+          <button id="logout-button">Выйти</buttton>
+        </div>
+      </script>
+
+      <script id="login-template" type="text/template">
+        <div>
+          <label>Авторизация</label>
+          <div>
+            <input type="text" name="login" placeholder="логин"/>
+            <input type="text" name="password" placeholder="пароль"/>
+            <button id="login-button">Войти</buttton>
+          </div>
+        </div>
       </script>
 
       <script id="search-history-template" type="text/template">

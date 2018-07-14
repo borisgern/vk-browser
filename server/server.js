@@ -37,18 +37,26 @@ app.use(bodyParser.json());
 
 io.on('connection', (socket) => {
   console.log('user connected to server');
+  //console.log(socket.handshake);
+  socket.on('auth', (log, pas, callback) => {
+    var user = new User({
+      login: log,
+      password: pas
+    });
+    user.save().then((res) => {
+      console.log('saved ', res);
+      callback();
+      Query.find({_requester: id}).sort({_id:-1}).limit(10).then((queries) => {
+        Link.find({_requester: id}).sort({_id:-1}).limit(10).then((links) => {
+          socket.emit('updateHistory', {queries, links});
+        });
+      });
 
-  // socket.on('auth', (log, pas) => {
-  //   var user = new User({
-  //     login: log,
-  //     password: pas
-  //   });
-  //   user.save().then((res) => {
-  //     console.log('saved ', res);
-  //   }, (e) => {
-  //     console.log('unable to save');
-  //   });
-  // });
+    }, (e) => {
+      console.log('unable to save');
+      callback('unable to save user');
+    });
+  });
 
   socket.on('checkToken', (callback) => {
     var token = getAccessToken();
@@ -84,9 +92,7 @@ io.on('connection', (socket) => {
       _requester:id
     });
     query.save().then((res) => {
-      Query.find({_requester: id}).sort({_id:-1}).limit(10).then((queries) => {
-        socket.emit('updateSearchHistory', queries);
-      });
+      console.log('saved ', res);
     }, (e) => {
       console.log('unable to save');
     });
