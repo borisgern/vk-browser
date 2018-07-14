@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-exports.Link = mongoose.model('Links', {
+exports.Click = mongoose.model('Clicks', {
   link: {
     type: String,
     required: true

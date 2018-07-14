@@ -11,15 +11,9 @@ exports.User = mongoose.model('Users', {
   password: {
     type: String,
     require: true
-  }
-  // tokens: [{
-  //   // access: {
-  //   //   type: String,
-  //   //   required: true
-  //   // },
-  //   VKtoken: {
-  //     type: String,
-  //     required: true
-  //   }
-  // }]
+  },
+  token: {
+      type: String,
+      required: true
+    }
 });

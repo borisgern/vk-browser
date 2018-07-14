@@ -1,15 +1,69 @@
 var socket = io();
 
+var generateTemplateLoggedIn = function (log, token) {
+  localStorage.token = token;
+  $('#authorization-form').empty();
+  var template = $('#logout-template').html();
+  var html = Mustache.render(template, {
+    username: log
+  });
+  $('#authorization-form').append(html);
+
+  template = $('#history-template').html();
+  html = Mustache.render(template);
+  $('#history').append(html);
+};
+
+var generateTemplateClicksHistory = function (histories) {
+  $('#click-history').empty();
+  if(histories.text !== null) {
+    histories.forEach(function (history) {
+      var template = $('#click-history-template').html();
+      var html = Mustache.render(template, {
+        text: history.text,
+        link: history.link
+      });
+      $(`#click-history`).append(html);
+    });
+  };
+};
+
+var generateTemplateQueriesHistory = function (histories) {
+  $('#search-history').empty();
+  console.log('history',histories);
+  histories.forEach(function (history) {
+    console.log(history.query);
+    var template = $('#search-history-template').html();
+    var html = Mustache.render(template, {
+      text: history.query
+    });
+    $('#search-history').append(html);
+  });
+
+  //generateTemplateClicksHistory(histories);
+};
+
 socket.on('connect', function () {
   console.log('connected to server');
 
   if(window.location.hash) {
-    socket.emit('token', $.deparam(window.location.hash.substr(1)).access_token)
+    socket.emit('VKtoken', $.deparam(window.location.hash.substr(1)).access_token)
   }
 
-  var template = $('#login-template').html();
-  var html = Mustache.render(template);
-  $('#authorization-form').append(html);
+  socket.emit('authByToken', localStorage.token, function(user) {
+    console.log('user', user);
+
+    if(user && user.token === localStorage.token) {
+      generateTemplateLoggedIn(user.login, user.token);
+      //generateTemplateQueriesHistory()/////
+    } else {
+      $('#authorization-form').empty();
+      var template = $('#login-template').html();
+      var html = Mustache.render(template);
+      $('#authorization-form').append(html);
+    }
+  });
+
 
 });
 
@@ -49,24 +103,12 @@ socket.on('searchResult', function (res) {
 
 });
 
-socket.on('updateHistory', function (history) {
-  //$('#search-history').empty();
-  history.queries.forEach(function (query) {
-    var template = $('#search-history-template').html();
-    var html = Mustache.render(template, {
-      text: query.query
-    });
-    $('#search-history').append(html);
-  });
+socket.on('updateQueriesHistory', function (history) {
+  generateTemplateQueriesHistory(history);
+});
 
-  history.links.forEach(function (link) {
-    var template = $('#click-history-template').html();
-    var html = Mustache.render(template, {
-      text: link.text,
-      link: link.link
-    });
-    $(`#click-history`).append(html);
-  });
+socket.on('updateClicksHistory', function (history) {
+  generateTemplateClicksHistory(history);
 });
 
 $('#search-form').submit(function (e) {
@@ -80,7 +122,7 @@ $('#search-form').submit(function (e) {
     } else {
       $('#search-result').empty();
       $('#search-status').text('Идет поиск...');
-      socket.emit('search', data);
+      socket.emit('search', data, localStorage.token);
     }
   });
 
@@ -89,41 +131,27 @@ $('#search-form').submit(function (e) {
 $('body').on('click', '#vk-link', function(e) {
   var link = e.target.href;
   var text = e.target.text;
-  socket.emit('linkClick', link, text, function(history) {
-    $('#click-history').empty();
-    history.forEach(function (link) {
-      var template = $('#click-history-template').html();
-      var html = Mustache.render(template, {
-        text: link.text,
-        link: link.link
-      });
-      $(`#click-history`).append(html);
-    });
-  });
+  if(localStorage.token) {
+    socket.emit('linkClick', link, text, localStorage.token);
+  }
 });
 
 $('body').on('click', '#login-button', function(e) {
     e.preventDefault();
     var log = $('[name=login]').val();
     var pas = $('[name=password]').val();
-    socket.emit('auth', log, pas, function(authResult) {
-      console.log(authResult);
-      if(!authResult) {
-        $('#authorization-form').empty();
-        var template = $('#logout-template').html();
-        var html = Mustache.render(template, {
-          username: log
-        });
-        $('#authorization-form').append(html);
-
-        template = $('#history-template').html();
-        html = Mustache.render(template);
-        $('#history').append(html);
-
-        //
-      }
-
-    });
+    if(log && pas) {
+      socket.emit('authByLogPas', log, pas, function(user) {
+        console.log(user);
+        if(user) {
+          generateTemplateLoggedIn(log, user.token);
+        } else {
+          alert(`Неправильный пароль для ${log}`);
+        }
+      });
+    } else {
+      alert('Введите логин и пароль');
+    }
 });
 
 $('body').on('click', '#logout-button', function(e) {
@@ -133,4 +161,10 @@ $('body').on('click', '#logout-button', function(e) {
     var template = $('#login-template').html();
     var html = Mustache.render(template);
     $('#authorization-form').append(html);
+    delete localStorage.token;
+});
+
+socket.on('disconnect', function () {
+  console.log('Disconnected from server');
+
 });
