@@ -31,8 +31,12 @@
     </form>
   </div>
   <div>
-    <p><b>История запросов:</b></p>
+    <p><b>10 последних поисковых запросов:</b></p>
     <ol id="search-history"></ol>
+  </div>
+  <div>
+    <p><b>10 последних кликов по ссылке:</b></p>
+    <ol id="click-history"></ol>
   </div>
   <div>
     <p><b>Результат поиска:</b></p>
@@ -46,9 +50,9 @@
         <div>
           <img src="{{photo}}" alt="{{first_name}} {{last_name}}">
         </div>
-        <div>
+        <div class="menu">
           <p>
-            <a href="{{link}}" target="_blank">{{first_name}} {{last_name}}</a>
+            <a id="vk-link" href="{{link}}" target="_blank">{{first_name}} {{last_name}}</a>
           </p>
         </div>
         <div>
@@ -78,7 +82,7 @@
           </div>
           <div>
             <p>
-              <a href="{{link}}" target="_blank">Ссылка на пост</a>
+              <a id="vk-link" href="{{link}}" target="_blank">Ссылка на пост</a>
             </p>
           </div>
         </li>
@@ -91,6 +95,16 @@
             </div>
           </li>
         </script>
+
+        <script id="click-history-template" type="text/template">
+            <li>
+              <div>
+                <p>
+                  <a href="{{link}}" target="_blank">{{text}}</a>
+                </p>
+              </div>
+            </li>
+          </script>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/libs/jquery-3.3.1.min.js"></script>

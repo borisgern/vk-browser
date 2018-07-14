@@ -10,12 +10,15 @@ const {search, setAccessToken, getAccessToken} = require('./utils/vk-calls');
 const {formatUsers} = require('./utils/users');
 const {mongoose} = require('./db/mongoose');
 const {Query} = require('./models/search-query.js');
+const {Link} = require('./models/link-click.js');
 const {User} = require('./models/user.js');
 const {ObjectId} = require('mongodb');
 
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
+
+const id = ObjectId("5b3f883179b68f215c17f155");
 
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -60,25 +63,33 @@ io.on('connection', (socket) => {
     setAccessToken(token);
   });
 
-  socket.on('search', (q) => {
-    var query = new Query({
-      query: q,
-      _requester: ObjectId("5b3f883179b68f215c17f155")
+  socket.on('linkClick', (link, text, callback) => {
+    var link = new Link({
+      link,
+      text,
+      _requester: id
     });
-    query.save().then((res) => {
-      console.log('saved ', res);
-      Query.find({
-        _requester: ObjectId("5b3f883179b68f215c17f155")
-      }).then((query) => {
-          socket.emit('updateSearchHistory', query);
-      })
+    link.save().then((res) => {
+      Link.find({_requester: id}).sort({_id:-1}).limit(10).then((links) => {
+      callback(links)
+      });
     }, (e) => {
       console.log('unable to save');
     });
+  });
 
-
-
-
+  socket.on('search', (q) => {
+    var query = new Query({
+      query: q,
+      _requester:id
+    });
+    query.save().then((res) => {
+      Query.find({_requester: id}).sort({_id:-1}).limit(10).then((queries) => {
+        socket.emit('updateSearchHistory', queries);
+      });
+    }, (e) => {
+      console.log('unable to save');
+    });
 
     search(q).then(res => {
 

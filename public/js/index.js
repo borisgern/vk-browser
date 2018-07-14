@@ -73,7 +73,23 @@ $('#search-form').submit(function (e) {
 
 });
 
-$('#authorization-form').submit(function (e) {
+$('body').on('click', '#vk-link', function(e) {
+  var link = e.target.href;
+  var text = e.target.text;
+  socket.emit('linkClick', link, text, function(history) {
+    $('#click-history').empty();
+    history.forEach(function (link) {
+      var template = $('#click-history-template').html();
+      var html = Mustache.render(template, {
+        text: link.text,
+        link: link.link
+      });
+      $(`#click-history`).append(html);
+    });
+  });
+});
+
+$('#authorization-form').submit(function(e) {
   e.preventDefault();
   var log = $('[name=login]').val();
   var pas = $('[name=password]').val();
